@@ -58,7 +58,7 @@ jobs:
         run: echo "Executando deploy final..."
 
   # 5ª ETAPA: DISCÓRDIA (Depende do implantar)
-  discórdia:
+  discord:
     needs: implantar
     if: always() # Para avisar você mesmo se algo falhar no caminho
     runs-on: ubuntu-latest
