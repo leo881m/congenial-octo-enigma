@@ -20,7 +20,7 @@ jobs:
         run: |
           pip install fastapi uvicorn pydantic pytest pytest-asyncio httpx
       - name: Rodar Testes
-        run: pytest teste.py
+        run: pytest teste/test.py
 
   # 2ª ETAPA: ENTREGA (Artefato)
   entrega:
