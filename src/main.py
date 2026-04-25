@@ -4,13 +4,14 @@ import random
 
 app = FastAPI()
 
+db = {}
+
 class Item(BaseModel):
-    nome: str
+    nome: str  
     preco: float
 
-
 @app.get("/")
-async def read_root() -> object:
+async def read_root(): 
     return {"Hello": "World"}
 
 @app.get("/teste")
@@ -35,4 +36,4 @@ def delete_item(item_id: int):
         return {"erro": "Item não encontrado"}
     
     del db[item_id]
-    return {"message": "Item deletado"} 
+    return {"message": "Item deletado"}
