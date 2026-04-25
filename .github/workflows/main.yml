@@ -68,5 +68,5 @@ jobs:
       - name: Notificar no Discord
         uses: sniddl/discord-commits@v1.6
         with:
-          webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
-          template: "Pipeline finalizado! O código em src/ foi testado via pasta teste/ e enviado ao Docker Hub."
+          webhook: ${{ secrets.DISCORD_WEBHOOK }} 
+          template: "Pipeline concluído! Status final: ${{ job.status }}"
