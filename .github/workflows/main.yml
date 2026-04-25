@@ -5,82 +5,69 @@ on:
     branches: [ "main" ]
 
 jobs:
-  # 1. TESTE
-  test:
+  # 1ª ETAPA: TESTE (Ajustado para pasta teste/)
+  teste:
     runs-on: ubuntu-latest
     env:
-      PYTHONPATH: .
-
+      PYTHONPATH: . # Permite que o teste enxergue a pasta src
     steps:
-      - uses: actions/checkout@v5
-
+      - uses: actions/checkout@v4
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: "3.12"
-
       - name: Instalar dependências
         run: |
           pip install fastapi uvicorn pydantic pytest pytest-asyncio httpx
+      - name: Rodar Testes
+        run: pytest teste/test.py  # Caminho correto para o arquivo
 
-      - name: Rodar testes
-        run: |
-          python -m pytest tests/test.py
-
-  # 2. ENTREGA
-  delivery:
-    needs: test
+  # 2ª ETAPA: ENTREGA (Artefato)
+  entrega:
+    needs: teste
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v5
-
+      - uses: actions/checkout@v4
       - name: Gerar artefato
         uses: actions/upload-artifact@v4
         with:
           name: projetozipado
           path: src/main.py
 
-  # 3. DOCKER
+  # 3ª ETAPA: DOCKER (Build e Push)
   docker:
-    needs: delivery
+    needs: entrega
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v5
-
+      - uses: actions/checkout@v4
       - name: Login no Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
+          username: "leomendes881"
+          password: "dckr_pat_IURVxb1PKn0dR86JuuOZfDz-LUA"
       - name: Build e Push
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/congenial-octo-enigma:latest
+          tags: congenial-octo-enigma:latest
 
-  # 4. DEPLOY
-  deploy:
+  # 4ª ETAPA: IMPLANTAR (Deploy)
+  implantar:
     needs: docker
     runs-on: ubuntu-latest
-
     steps:
-      - name: Simular deploy
-        run: echo "Deploy executado com sucesso 🚀"
+      - name: Simular Deploy
+        run: echo "Executando deploy da aplicação..."
 
-  # 5. DISCORD
-  discord:
-    needs: deploy
+  # 5ª ETAPA: DISCÓRDIA (Notificação)
+  discórdia:
+    needs: implantar
     if: always()
     runs-on: ubuntu-latest
-
     steps:
-      - name: Notificar Discord
+      - name: Notificar no Discord
         uses: sniddl/discord-commits@v1.6
         with:
           webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
-          template: "🚀 Pipeline finalizado com sucesso!"
-          include_author: true
+          template: "Pipeline finalizado! O código em src/ foi testado via pasta teste/ e enviado ao Docker Hub."
