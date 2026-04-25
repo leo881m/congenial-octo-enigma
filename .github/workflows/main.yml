@@ -17,7 +17,7 @@ jobs:
       - name: Instalar dependências e rodar testes
         run: |
           pip install fastapi uvicorn pydantic pytest pytest-asyncio httpx
-          pytest test_main.py
+          pytest teste.py
 
   # 2ª ETAPA: ENTREGA (Depende do teste)
   entrega:
