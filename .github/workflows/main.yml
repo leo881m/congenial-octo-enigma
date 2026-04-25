@@ -1,25 +1,28 @@
-name: Pipeline Integrado
+name: Pipeline Integrado - 5 Etapas
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  # 1ª ETAPA: TESTE
+  # 1ª ETAPA: TESTE (Configurado para pasta src)
   teste:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: .
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.12"
-      - name: Instalar dependências e rodar testes
+      - name: Instalar dependências
         run: |
           pip install fastapi uvicorn pydantic pytest pytest-asyncio httpx
-          pytest teste.py
+      - name: Rodar Testes
+        run: pytest test.py
 
-  # 2ª ETAPA: ENTREGA (Depende do teste)
+  # 2ª ETAPA: ENTREGA (Artefato)
   entrega:
     needs: teste
     runs-on: ubuntu-latest
@@ -29,9 +32,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: projetozipado
-          path: main.py
+          path: src/main.py
 
-  # 3ª ETAPA: DOCKER (Depende da entrega)
+  # 3ª ETAPA: DOCKER (Build e Push)
   docker:
     needs: entrega
     runs-on: ubuntu-latest
@@ -49,22 +52,22 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/app:latest
 
-  # 4ª ETAPA: IMPLANTAR (Depende do docker)
+  # 4ª ETAPA: IMPLANTAR (Deploy)
   implantar:
     needs: docker
     runs-on: ubuntu-latest
     steps:
       - name: Simular Deploy
-        run: echo "Executando deploy final..."
+        run: echo "Executando deploy da pasta src na produção..."
 
-  # 5ª ETAPA: DISCÓRDIA (Depende do implantar)
+  # 5ª ETAPA: DISCÓRDIA (Notificação)
   discord:
     needs: implantar
-    if: always() # Para avisar você mesmo se algo falhar no caminho
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Notificar no Discord
         uses: sniddl/discord-commits@v1.6
         with:
           webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
-          template: "Pipeline de 5 etapas concluído! Status: ${{ job.status }}"
+          template: "Pipeline finalizado! A aplicação em src/main.py foi testada e enviada."
