@@ -61,7 +61,7 @@ jobs:
         run: echo "Executando deploy da aplicação..."
 
   # 5ª ETAPA: DISCÓRDIA (Notificação)
-  discórdia:
+  discord:
     needs: implantar
     if: always()
     runs-on: ubuntu-latest
